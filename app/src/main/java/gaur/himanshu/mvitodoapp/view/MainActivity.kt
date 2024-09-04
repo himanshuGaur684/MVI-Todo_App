@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -53,27 +55,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MVITodoAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Surface(modifier = Modifier.padding(innerPadding)) {
-                        val list by repository.getAllTodoList()
-                            .collectAsState(initial = emptyList())
-                        val scope = rememberCoroutineScope()
-                        MainScreen(list = list) { intent ->
-                            when (intent) {
-                                is TodoIntent.Delete -> scope.launch(Dispatchers.IO) {
-                                    repository.delete(intent.todo)
-                                }
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    val list by repository.getAllTodoList().collectAsState(initial = emptyList())
+                    val scope = rememberCoroutineScope()
+                    MainScreen(list = list) { intent ->
+                        when (intent) {
+                            is TodoIntent.Delete -> scope.launch(Dispatchers.IO) {
+                                repository.delete(intent.todo)
+                            }
 
-                                is TodoIntent.Insert -> scope.launch(Dispatchers.IO)  {
-                                    repository.insert(intent.todo)
-                                }
+                            is TodoIntent.Insert -> scope.launch(Dispatchers.IO) {
+                                repository.insert(intent.todo)
+                            }
 
-                                is TodoIntent.Update -> scope.launch(Dispatchers.IO)  {
-                                    repository.update(intent.todo)
-                                }
+                            is TodoIntent.Update -> scope.launch(Dispatchers.IO) {
+                                repository.update(intent.todo)
                             }
                         }
                     }
+
                 }
             }
         }
@@ -137,21 +137,26 @@ fun MainScreen(list: List<Todo>, onIntent: (TodoIntent) -> Unit) {
             }
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .padding(12.dp)
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 TextField(value = title.value, onValueChange = {
                     title.value = it
                 }, modifier = Modifier.fillMaxWidth())
-                Button(onClick = {
-                    onIntent.invoke(
-                        TodoIntent.Insert(
-                            Todo(title = title.value, isDone = false, id = 0)
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        onIntent.invoke(
+                            TodoIntent.Insert(
+                                Todo(title = title.value, isDone = false)
+                            )
                         )
-                    )
-                    title.value = ""
-                }) {
+                        title.value = ""
+                    }) {
                     Text(text = "Save todo")
                 }
             }
