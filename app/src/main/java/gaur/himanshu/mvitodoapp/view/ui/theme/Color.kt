@@ -1,4 +1,4 @@
-package gaur.himanshu.mvitodoapp.ui.theme
+package gaur.himanshu.mvitodoapp.view.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
